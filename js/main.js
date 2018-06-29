@@ -86,7 +86,7 @@ function generate3W(data, geom) {
             .featureKeyAccessor(function(feature){
                 return feature.properties['Pcode'];
             }).popup(function(feature){
-                return feature.properties['Name'];
+                return feature.properties['NAME_1'];
             });
 
     whatChart.width(400)
