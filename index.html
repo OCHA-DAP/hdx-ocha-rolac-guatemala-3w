@@ -20,18 +20,24 @@
         <script src="js/dc.leaflet.js"></script>
     </head>
     <body>
+        <div class="loader" id="loader"></div>
         <div class="container">
-            <div class="row">
-                <h2>Guatemala | 3W - Who is doing What Where - April 2018</h2>
+            <div class="row title">
+                <h2>Guatemala | 3W - Who is doing What Where <span></span></h2>
             </div>
-            <div class="row">
+            <div class="row viz-container">
+                <div class="col-md-3 col-sm-3 col-xs-6">
+
+                    <h4>Organization type</h4>
+                    <div id="orgType"></div>
+
+                    <h4>What </h4>
+                    <div id="whatChart"></div>
+                </div>
+
                 <div class="col-md-3 col-sm-3 col-xs-6">
                     <h4>Who (Top 20)</h4>
                     <div id="whoChart"></div>
-                </div>
-                <div class="col-md-3 col-sm-3 col-xs-6">
-                    <h4>What (Top 20)</h4>
-                    <div id="whatChart"></div>
                 </div>
                 <div class="col-md-6 col-sm-3 col-xs-12">
                     <h4>Where <span class="pull-right"><a class="reset" id="reset" href="javascript:dc.filterAll();dc.redrawAll();">Clear selections</a></span></h4>
@@ -39,7 +45,7 @@
                     <p class="small">The boundaries and names shown and the designations used on this map do not imply official endorsement or acceptance by the United Nations.</p>
                 </div>
             </div>
-        </div>
+        </div> <!-- fin container-->
         <script src="js/main.js"></script>
     </body>
 </html>
