@@ -36,6 +36,7 @@ function generate3W(data, geom) {
     var where = dc.leafletChoroplethChart('#map');
     var whoChart = dc.rowChart('#whoChart');
     var whatChart = dc.rowChart('#whatChart');
+    var orgTypeChart = dc.rowChart('#orgType');
 
 
     var cf = crossfilter(data);
@@ -50,10 +51,16 @@ function generate3W(data, geom) {
         return d['#org'];
     });
 
+    var orgTypeDim = cf.dimension(function(d){
+        return d['#org+type'];
+    });
 
-    var whereGroup = whereDim.group();
+    var whereGroup = whereDim.group().reduceCount(function(d){ 
+        return d['#org'];
+    });
     var whatGroup = whatDim.group();
     var whoGroup = whoDim.group();
+    var orgTypeGroup = orgTypeDim.group();
 
 
     //tooltip
@@ -62,6 +69,7 @@ function generate3W(data, geom) {
 
     });
 
+
  where.width($('#map').width())
             .height(500)
             .dimension(whereDim)
@@ -69,19 +77,20 @@ function generate3W(data, geom) {
             .center([0,0]) //8.779/13.436
             .zoom(0)
             .geojson(geom)
-            // .colors(['#043567', '#256BB1', '#4191DB','#96B7DD'])
-            // .colorDomain([0, 3])
-            // .colorAccessor(function (d) {
-            //     return d > 20 ? 0 :
-            //             10 > d > 20 ? 1 :
-            //             5 > d > 10 ? 2 :
-            //             1 > d > 5 ? 3 :
-            //             3;
-            // })
-            .colors(['#CCCCCC',blue])
-            .colorDomain([0,1])
-            .colorAccessor(function(d, i){
-                return d > 0 ? 1 : 0 ;
+            .colors(['#007CE0','#C7D5EE','#95B5DE','#6599D1','#DDDDDD'])
+            .colorDomain([0, 4])
+            .colorAccessor(function(d){
+                var c = 4;
+                if (d>80) {
+                    c = 0;
+                } else if (d>60) {
+                    c = 1;
+                } else if(d>30){
+                    c = 2;
+                } else if (d>10){
+                    return c = 3;
+                }
+                return c;
             })
             .featureKeyAccessor(function(feature){
                 return feature.properties['Pcode'];
@@ -90,10 +99,23 @@ function generate3W(data, geom) {
             });
 
     whatChart.width(400)
-        .height(500)
+        .height(300)
         .gap(2)
         .dimension(whatDim)
         .group(whatGroup)
+        .data(function (group) {
+            return group.top(Infinity);
+        })
+        .colors(blue)
+        .elasticX(true)
+        .renderTitle(false)
+        .xAxis().ticks(5);
+
+    orgTypeChart.width(400)
+        .height(200)
+        .gap(2)
+        .dimension(orgTypeDim)
+        .group(orgTypeGroup)
         .data(function (group) {
             return group.top(20);
         })
@@ -103,7 +125,7 @@ function generate3W(data, geom) {
         .xAxis().ticks(5);
 
     whoChart.width(400)
-        .height(500)
+        .height(530)
         .gap(2)
         .dimension(whoDim)
         .group(whoGroup)
@@ -114,6 +136,9 @@ function generate3W(data, geom) {
         .elasticX(true)
         .renderTitle(false)
         .xAxis().ticks(5);
+
+    $('.viz-container').show();
+    $('.loader').hide();
 
     dc.renderAll();
 
@@ -143,6 +168,9 @@ function generate3W(data, geom) {
 
 } //generate3W
 
+function generateDate(date) {
+    $('.title h2 span').text("- "+date[0]['#date'])  
+}
 
 var geodataCall = $.ajax({
     type: 'GET',
@@ -156,8 +184,17 @@ var dataCall = $.ajax({
     url: 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1x27qN_2mL-pFaQ0sPc0FQNacRo239lwGmOcXXr9jFJg%2Fedit%23gid%3D1368408337&force=on'
 });
 
-$.when(geodataCall, dataCall).then(function(geomArgs, dataArgs){
+var dateCall = $.ajax({
+    type: 'GET',
+    dataType : 'JSON',
+    url : 'https://proxy.hxlstandard.org/data.json?strip-headers=on&url=https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1x27qN_2mL-pFaQ0sPc0FQNacRo239lwGmOcXXr9jFJg%2Fedit%23gid%3D58899824&force=on',
+});
+
+$.when(geodataCall, dataCall, dateCall).then(function(geomArgs, dataArgs, dateArgs){
     var geom = geomArgs[0];
     var data = hxlProxyToJSON(dataArgs[0]);
+    //console.log(data);
+    var date_udpate = hxlProxyToJSON(dateArgs[0]);
+    generateDate(date_udpate);
     generate3W(data, geom);
 });
