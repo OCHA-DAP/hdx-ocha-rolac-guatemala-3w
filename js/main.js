@@ -87,7 +87,7 @@ function generate3W(data, geom) {
                     c = 1;
                 } else if(d>30){
                     c = 2;
-                } else if (d>10){
+                } else if (d>0){
                     return c = 3;
                 }
                 return c;
